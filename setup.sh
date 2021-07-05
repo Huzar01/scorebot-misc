@@ -20,7 +20,8 @@ VERBOSE=0
 SCOREBOT_BRANCH=""
 SCOREBOT_VERSION="v3.3"
 SCOREBOT_DIR="/opt/scorebot"
-SCOREBOT_URL="https://github.com/quicksandcodes/scorebot-core"
+#SCOREBOT_URL="https://github.com/quicksandcodes/scorebot-core"
+SCOREBOT_URL="https://github.com/iDigitalFlame/scorebot-core"
 
 SYSCONFIG_DIR="/opt/sysconfig"
 SYSCONFIG_URL="https://github.com/iDigitalFlame/scorebot-sysconfig"
