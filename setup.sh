@@ -146,7 +146,7 @@ setup_core() {
     printf "$core_db_ip\tscorebot-database\n" >> "${SYSCONFIG_DIR}/etc/hosts"
     log "MySQL Server IP is \"$core_db_ip\", this can be changed in the \"/etc/hosts\" file.."
     log "Installing core dependencies.."
-    run "pacman -S apache mod_wsgi python python-pip python-virtualenv python-django gcc mariadb-clients python-mysqlclient --noconfirm --noprogressbar"
+    run "sudo pacman -S apache mod_wsgi python python-pip python-virtualenv python-django gcc mariadb-clients python-mysqlclient --noconfirm --noprogressbar"
     run "mkdir -p \"${SCOREBOT_DIR}/versions\""
     log "Building virtual env.."
     run "virtualenv --always-copy \"${SCOREBOT_DIR}/python\"" 1> /dev/null
