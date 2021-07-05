@@ -108,18 +108,20 @@ setup_db() {
     log "Scorebot IP is \"$db_scorebot_ip\", this can be changed in the \"/etc/hosts\" file.."
     printf "scorebot-database" > "${SYSCONFIG_DIR}/etc/hostname"
     printf "$db_scorebot_ip\tscorebot-core\n" >> "${SYSCONFIG_DIR}/etc/hosts"
-    #log "Installing database dependencies.."
-    #run "pacman -S mariadb --noconfirm --noprogressbar"
-    #log "Installing inital database.."
-    #run "mysql_install_db --basedir=/usr --ldata=/var/lib/mysql --user=mysql" 1> /dev/null
-    #run "systemctl enable mariadb" 2> /dev/null
-    #run "systemctl start mariadb"
-    #log "Securing database.."
-    #run "mysql -u root -e \"DELETE FROM mysql.user WHERE User='';\""
-    #run "mysql -u root -e \"DELETE FROM mysql.user WHERE User='mysql';\""
-    #run "mysql -u root -e \"DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');\""
-    #run "mysql -u root -e \"DROP DATABASE IF EXISTS test;\""
-    #run "mysql -u root -e \"DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';\""
+    #
+    log "Installing database dependencies.."
+    run "pacman -S mariadb --noconfirm --noprogressbar"
+    log "Installing inital database.."
+    run "mysql_install_db --basedir=/usr --ldata=/var/lib/mysql --user=mysql" 1> /dev/null
+    run "systemctl enable mariadb" 2> /dev/null
+    run "systemctl start mariadb"
+    log "Securing database.."
+    run "mysql -u root -e \"DELETE FROM mysql.user WHERE User='';\""
+    run "mysql -u root -e \"DELETE FROM mysql.user WHERE User='mysql';\""
+    run "mysql -u root -e \"DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');\""
+    run "mysql -u root -e \"DROP DATABASE IF EXISTS test;\""
+    run "mysql -u root -e \"DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';\""
+    #
     run "mysql -u root -e \"FLUSH PRIVILEGES;\""
     run "mysql -u root -e \"DROP DATABASE IF EXISTS scorebot_db;\""
     run "mysql -u root -e \"CREATE DATABASE scorebot_db;\""
