@@ -127,6 +127,7 @@ setup_db() {
     run "mysql -u root -e \"DROP DATABASE IF EXISTS scorebot_db;\""
     run "mysql -u root -e \"CREATE DATABASE scorebot_db;\""
     run "mysql -u root -e \"GRANT ALL ON scorebot_db.* TO 'scorebot'@'scorebot-core' IDENTIFIED BY '$db_scorebot_pw';\""
+    run "mysql -u root -e \"FLUSH PRIVILEGES;\""
     run "mysql -u root -e \"UPDATE mysql.global_priv SET priv=json_set(priv, '$.plugin', 'mysql_native_password', '$.authentication_string', PASSWORD('$db_root_pw')) WHERE User='root';\""
     run "systemctl restart mariadb"
     log "Database setup complete, please configure the core component to use the supplied password!"
@@ -165,9 +166,15 @@ setup_core() {
     run "source \"${SCOREBOT_DIR}/python/bin/activate\"; cd \"${SCOREBOT_DIR}/current\"; unset PIP_USER; pip install -r requirements.txt" 1> /dev/null
     run "sed -ie 's/\"PASSWORD\": \"password\",/\"PASSWORD\": \"$core_db_pw\",/g' \"${SCOREBOT_DIR}/current/scorebot/settings.py\""
     run "rm ${SCOREBOT_DIR}/current/scorebot/*e"
+    #
     log "Attempting to push migrations to database server \"$core_db_ip\".."
+    log "migrate.py make migration.."
     run "source \"${SCOREBOT_DIR}/python/bin/activate\"; cd \"${SCOREBOT_DIR}/current\"; env SBE_SQLLITE=0 python manage.py makemigrations scorebot_grid scorebot_core scorebot_game" 1> /dev/null
+    #
+    log "migrate.py migrate.."
     run "source \"${SCOREBOT_DIR}/python/bin/activate\"; cd \"${SCOREBOT_DIR}/current\"; env SBE_SQLLITE=0 python manage.py migrate" 1> /dev/null
+    #
+    log "manage.py shell .."
     run "source \"${SCOREBOT_DIR}/python/bin/activate\"; cd \"${SCOREBOT_DIR}/current\"; env SBE_SQLLITE=0 python manage.py shell -c \"from django.contrib.auth.models import User; User.objects.create_superuser('root', '', '$core_django_pw')\""
     #
     log "Created Django admin account \"root\" with supplied password!"
