@@ -94,6 +94,7 @@ setup() {
     log "Finished basic setup.."
 }
 setup_db() {
+    log "setup_db starting...Installing database .."
     db_root_pw=""
     db_scorebot_pw=""
     db_scorebot_ip=""
@@ -131,6 +132,7 @@ setup_db() {
     log "Database setup complete, please configure the core component to use the supplied password!"
 }
 setup_core() {
+    log "setup_core starting...Installing core .."
     core_db_pw=""
     core_db_ip=""
     core_django_pw=""
