@@ -76,8 +76,9 @@ setup() {
     printf "SYSCONFIG=${SYSCONFIG_DIR}\n" > "/etc/sysconfig.conf"
     chmod 444 "/etc/sysconfig.conf"
     log "Initilizing sysconfig.."
-    run "rm /etc/hostname" 2> /dev/null
-    run "touch /etc/hostname"
+    #run "rm /etc/hostname" 2> /dev/null
+    #run "touch /etc/hostname"
+    run "echo "" > /etc/hostname"
     run "chmod 555 ${SYSCONFIG_DIR}/bin/relink"
     run "chmod 555 ${SYSCONFIG_DIR}/bin/syslink"
     run "bash \"${SYSCONFIG_DIR}/bin/relink\" \"${SYSCONFIG_DIR}\" / " 1> /dev/null
