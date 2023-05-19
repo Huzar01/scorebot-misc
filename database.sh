@@ -93,3 +93,8 @@ setup_db() {
 
 setup
 setup_db
+
+log "Finilizing with a syslink.."
+run "syslink" 1> /dev/null
+log "Done\nHave Fun!"
+exit 0
