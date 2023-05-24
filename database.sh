@@ -58,7 +58,8 @@ setup() {
     run "rm /etc/hostname" 2> /dev/null
     run "touch /etc/hostname"
     run "chmod 555 ${SYSCONFIG_DIR}/bin/relink"
-    run "chmod 555 ${SYSCONFIG_DIR}/bin/syslink"
+    run "chmod 555 ${SYSCONFIG_DIR}/bin/syslink
+    ### /bin/relink link() fails to create symlink as /etc/hosts exists. Can't rm the file as its in use. 
     run "bash \"${SYSCONFIG_DIR}/bin/relink\" \"${SYSCONFIG_DIR}\" / " 1> /dev/null
     run "bash \"${SYSCONFIG_DIR}/bin/syslink\"" 1> /dev/null
     run "syslink" 1> /dev/null
