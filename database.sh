@@ -8,6 +8,27 @@ SCOREBOT_URL="https://github.com/iDigitalFlame/scorebot-core"
 SYSCONFIG_DIR="/opt/sysconfig"
 SYSCONFIG_URL="https://github.com/iDigitalFlame/scorebot-sysconfig"
 
+log() {
+    if [ $# -ne 1 ]; then
+        return 0
+    fi
+    printf "[+] $1\n"
+}
+run() {
+    if [ $# -ne 1 ]; then
+        return 0
+    fi
+    if [ $VERBOSE -eq 1 ]; then
+        printf "[V] Running \"$1\"\n"
+    fi
+    bash -c "$1; exit \$?"
+    if [ $? -ne 0 ]; then
+        printf "[!] Command \"$1\" did not exit with zero, quitting!\n"
+        exit 1
+    fi
+    return 1
+}
+
 setup() {
     log "Updating system.."
     run "pacman -Syy" 1> /dev/null
