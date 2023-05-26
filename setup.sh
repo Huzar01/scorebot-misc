@@ -151,23 +151,34 @@ setup_core() {
     log "MySQL Server IP is \"$core_db_ip\", this can be changed in the \"/etc/hosts\" file.."
     log "Installing core dependencies.."
     #run "sudo pacman -S apache mod_wsgi python python-pip python-virtualenv python-django gcc mariadb-clients python-mysqlclient --noconfirm --noprogressbar"
+    ### NEEDED for scorebot_core
     run "pacman -S apache python python-pip python-virtualenv python-django gcc mariadb-clients python-mysqlclient --noconfirm --noprogressbar"
     run "mkdir -p \"${SCOREBOT_DIR}/versions\""
     log "Building virtual env.."
+    ### Create virtualenv (Can skip)
     run "virtualenv --always-copy \"${SCOREBOT_DIR}/python\"" 1> /dev/null
     if  [ -d "${SCOREBOT_DIR}/versions/${SCOREBOT_VERSION}" ]; then
 	rm -rf "${SCOREBOT_DIR}/versions/${SCOREBOT_VERSION}"
     fi
+    ### Pulling git repo 
+    ### COPY git repo file into Container
+    ### Want all this ahppen in container, so COPY works here. (Runs only on docker build)
     run "git clone \"$SCOREBOT_URL\" \"${SCOREBOT_DIR}/versions/${SCOREBOT_VERSION}\""
     if ! [ -z "$SCOREBOT_BRANCH" ]; then
         run "cd \"${SCOREBOT_DIR}/versions/${SCOREBOT_VERSION}\"; git checkout $SCOREBOT_BRANCH"
     fi
     run "ln -s \"${SCOREBOT_DIR}/versions/${SCOREBOT_VERSION}\" \"${SCOREBOT_DIR}/current\"" 1> /dev/null
     log "Installing PIP requirements.."
+    ### Point to repo
     run "source \"${SCOREBOT_DIR}/python/bin/activate\"; cd \"${SCOREBOT_DIR}/current\"; unset PIP_USER; pip install -r requirements.txt" 1> /dev/null
+    ### Push database pw to settings.py | Env
+    ### Mount to volume to docker (share from host <-> docker)
+    ### Settings file should be a Mount, at runtime you may want to change the config dynamically wihtout rebuilding docker. 
     run "sed -ie 's/\"PASSWORD\": \"password\",/\"PASSWORD\": \"$core_db_pw\",/g' \"${SCOREBOT_DIR}/current/scorebot/settings.py\""
     run "rm ${SCOREBOT_DIR}/current/scorebot/*e"
     #
+    ### DJango, may need to split this function into the database itself. (Need to ensure DJango is clean and operational after game or closures)
+    ### There is database, but it's empty 
     log "Attempting to push migrations to database server \"$core_db_ip\".."
     log "migrate.py make migration.."
     run "source \"${SCOREBOT_DIR}/python/bin/activate\"; cd \"${SCOREBOT_DIR}/current\"; env SBE_SQLLITE=0 python manage.py makemigrations scorebot_grid scorebot_core scorebot_game" 1> /dev/null
