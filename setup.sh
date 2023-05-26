@@ -152,6 +152,14 @@ setup_core() {
     log "Installing core dependencies.."
     #run "sudo pacman -S apache mod_wsgi python python-pip python-virtualenv python-django gcc mariadb-clients python-mysqlclient --noconfirm --noprogressbar"
     ### NEEDED for scorebot_core
+    #### Services needed: 
+    ##### ADHOC (Cron Job) - Talks with database. 
+    ##### Apache 
+    
+    #### Runtime containers:
+    ##### Database
+    ##### Apache (DJango env) [Unicorn may be need as wsgi not in repos anymore(if you want to use wsgi need to manually build it)] *see code in slack thread.
+    ##### ADHOC (schudeling and DJango configs, not hosting an endpoint)  
     run "pacman -S apache python python-pip python-virtualenv python-django gcc mariadb-clients python-mysqlclient --noconfirm --noprogressbar"
     run "mkdir -p \"${SCOREBOT_DIR}/versions\""
     log "Building virtual env.."
@@ -179,6 +187,16 @@ setup_core() {
     #
     ### DJango, may need to split this function into the database itself. (Need to ensure DJango is clean and operational after game or closures)
     ### There is database, but it's empty 
+    ### Build - loading all software on container (initial config/build)
+    ### Interm - optional, INIT phase. Start container, doing init things(Configuring DB, PW) *Things to do after building, but before runtime.
+    #### init container starts up in the same env as build container to prepare that container for runtime. 
+    #### 1)Build another container for init. 2) 'BusyBox' 
+    ### Runtime - Everything interacting with each needed element. 
+    
+    ### Dump DB to a sql file and mount that file into DB container.
+    
+    ### Create Token GUID to auth. Universal bootstrap token.
+    ###
     log "Attempting to push migrations to database server \"$core_db_ip\".."
     log "migrate.py make migration.."
     run "source \"${SCOREBOT_DIR}/python/bin/activate\"; cd \"${SCOREBOT_DIR}/current\"; env SBE_SQLLITE=0 python manage.py makemigrations scorebot_grid scorebot_core scorebot_game" 1> /dev/null
@@ -191,6 +209,7 @@ setup_core() {
     #
     log "Created Django admin account \"root\" with supplied password!"
     [ -e /etc/httpd/conf/scorebot-role.conf ] && rm /etc/httpd/conf/scorebot-role.conf
+    ### apache conf in repo file. 
     run "ln -s \"${SYSCONFIG_DIR}/etc/httpd/conf/roles/core.conf\" \"/etc/httpd/conf/scorebot-role.conf\"" 1> /dev/null
     #
     run "ln -s /usr/lib/python3.*/site-packages/django/contrib/admin/static/admin \"${SCOREBOT_DIR}/current/scorebot_static/admin\"" 1> /dev/null
